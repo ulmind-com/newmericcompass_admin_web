@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import CategoriesPage from './pages/CategoriesPage';
 import PadasPage from './pages/PadasPage';
 import RulesPage from './pages/RulesPage';
+import SubmissionsPage from './pages/SubmissionsPage';
 import TipsPage from './pages/TipsPage';
 import UsersList from './pages/UsersList';
 
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="padas" element={<PadasPage />} />
             <Route path="rules" element={<RulesPage />} />
+            <Route path="submissions" element={<SubmissionsPage />} />
             <Route path="tips" element={<TipsPage />} />
             <Route path="users" element={<UsersList />} />
           </Route>
