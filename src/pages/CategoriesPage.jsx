@@ -5,7 +5,24 @@ import { Button, Card, Field, Input, Spinner } from '../components/ui';
 import Modal from '../components/Modal';
 
 const slugify = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const empty = { name: '', slug: '', icon_key: '', icon_url: '', order: 0, is_active: true };
+const DIRS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+const empty = { name: '', slug: '', icon_key: '', icon_url: '', order: 0, is_active: true, best_directions: [], avoid_directions: [] };
+
+function DirPicker({ value = [], onChange, tone }) {
+  const active = tone === 'best' ? 'bg-hgreen text-white border-hgreen' : 'bg-red-500 text-white border-red-500';
+  const toggle = (d) => onChange(value.includes(d) ? value.filter((x) => x !== d) : [...value, d]);
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {DIRS.map((d) => (
+        <button key={d} type="button" onClick={() => toggle(d)}
+          className={`rounded-md border px-2 py-1 text-xs font-semibold transition ${
+            value.includes(d) ? active : 'border-brand-100 text-ink/60 hover:bg-brand-50'}`}>
+          {d}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function CategoriesPage() {
   const [items, setItems] = useState([]);
@@ -141,6 +158,13 @@ export default function CategoriesPage() {
               Active (visible in app)
             </label>
           </div>
+
+          <Field label="Best directions" hint="Ideal placement — shown green & used for compass guidance">
+            <DirPicker tone="best" value={form.best_directions || []} onChange={(v) => setForm({ ...form, best_directions: v })} />
+          </Field>
+          <Field label="Avoid directions" hint="Dosh zones — shown red on the compass">
+            <DirPicker tone="avoid" value={form.avoid_directions || []} onChange={(v) => setForm({ ...form, avoid_directions: v })} />
+          </Field>
         </div>
       </Modal>
     </div>
