@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Grid3x3, Compass, ScrollText, Lightbulb, Users, LogOut,
+  LayoutDashboard, Grid3x3, Compass, ScrollText, Inbox, Lightbulb, Users, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 
@@ -10,6 +10,7 @@ const NAV = [
   { to: '/categories', label: 'Categories', icon: Grid3x3 },
   { to: '/padas', label: 'Padas (N5)', icon: Compass },
   { to: '/rules', label: 'Vastu Rules', icon: ScrollText },
+  { to: '/submissions', label: 'Submissions', icon: Inbox },
   { to: '/tips', label: 'Daily Tips', icon: Lightbulb },
   { to: '/users', label: 'Users', icon: Users },
 ];

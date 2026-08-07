@@ -42,6 +42,13 @@ export const adminApi = {
     (await client.put(`/admin/rules/upsert/${category}/${pada}`, payload)).data,
   deleteRule: async (id) => (await client.delete(`/admin/rules/${id}`)).data,
 
+  // ---- Submissions ----
+  getSubmissions: async (page = 1, pageSize = 20) =>
+    (await client.get(`/admin/submissions/?page=${page}&page_size=${pageSize}`)).data,
+  getSubmission: async (id) => (await client.get(`/admin/submissions/${id}`)).data,
+  updateSubmissionStatus: async (id, status) =>
+    (await client.patch(`/admin/submissions/${id}`, { status })).data,
+
   // ---- Tips ----
   getTips: async () => (await client.get('/admin/tips/')).data,
   createTip: async (payload) => (await client.post('/admin/tips/', payload)).data,
