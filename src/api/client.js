@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Backend base, e.g. https://your-app.onrender.com/api . Falls back to local dev.
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+  import.meta.env.VITE_API_URL || 'https://newmericcompass-backend.onrender.com/api';
 
 export const TOKEN_KEY = 'nc_admin_token';
 

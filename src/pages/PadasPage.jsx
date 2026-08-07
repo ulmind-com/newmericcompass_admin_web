@@ -22,8 +22,8 @@ export default function PadasPage() {
   const save = async () => {
     setBusy(true);
     try {
-      const { name, element, dosha, organ, life_aspect, nakshatra, default_verdict, description, is_active } = form;
-      await adminApi.updatePada(editing.code, { name, element, dosha, organ, life_aspect, nakshatra, default_verdict, description, is_active });
+      const { name, element, dosha, organ, life_aspect, nakshatra, color, default_verdict, description, is_active } = form;
+      await adminApi.updatePada(editing.code, { name, element, dosha, organ, life_aspect, nakshatra, color, default_verdict, description, is_active });
       setEditing(null); load();
     } catch (err) { alert(err?.response?.data?.detail || 'Save failed'); }
     finally { setBusy(false); }
@@ -51,7 +51,12 @@ export default function PadasPage() {
             <tbody className="divide-y divide-brand-50">
               {padas.map((p) => (
                 <tr key={p.code} className="hover:bg-brand-50/40">
-                  <td className="px-4 py-2.5 font-bold"><span className={QUAD_COLOR[p.quadrant]}>{p.code}</span></td>
+                  <td className="px-4 py-2.5 font-bold">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-3.5 w-3.5 rounded-sm border border-brand-100" style={{ backgroundColor: p.color || '#EFE7D6' }} />
+                      <span className={QUAD_COLOR[p.quadrant]}>{p.code}</span>
+                    </span>
+                  </td>
                   <td className="px-4 py-2.5 tabular-nums text-ink/60">{p.start_deg}°–{p.end_deg}°</td>
                   <td className="px-4 py-2.5 font-medium">{p.direction16}</td>
                   <td className="px-4 py-2.5 text-ink/70">{p.element || '—'}</td>
@@ -96,6 +101,13 @@ export default function PadasPage() {
               </Field>
             </div>
             <Field label="Life aspect"><Input value={form.life_aspect || ''} onChange={(e) => setForm({ ...form, life_aspect: e.target.value })} /></Field>
+            <Field label="Zone colour" hint="Hex, shown as the compass band colour">
+              <div className="flex items-center gap-2">
+                <input type="color" value={form.color || '#EFE7D6'} onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  className="h-9 w-12 cursor-pointer rounded border border-brand-100 bg-white" />
+                <Input value={form.color || ''} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#CFE8F5" />
+              </div>
+            </Field>
             <Field label="Description"><Textarea rows={3} value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
             <label className="flex items-center gap-2 text-sm font-medium text-ink/80">
               <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 accent-brand-500" />
