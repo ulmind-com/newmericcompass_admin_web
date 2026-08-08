@@ -22,8 +22,12 @@ export default function PadasPage() {
   const save = async () => {
     setBusy(true);
     try {
-      const { name, element, dosha, organ, life_aspect, nakshatra, color, default_verdict, description, is_active } = form;
-      await adminApi.updatePada(editing.code, { name, element, dosha, organ, life_aspect, nakshatra, color, default_verdict, description, is_active });
+      const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color', 'corner',
+        'lord', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
+        'enhance_colour', 'exhaust_colour', 'acceptable_colour', 'relationship',
+        'default_verdict', 'description', 'is_active'];
+      const payload = Object.fromEntries(keys.map((k) => [k, form[k]]));
+      await adminApi.updatePada(editing.code, payload);
       setEditing(null); load();
     } catch (err) { alert(err?.response?.data?.detail || 'Save failed'); }
     finally { setBusy(false); }
@@ -107,6 +111,33 @@ export default function PadasPage() {
                   className="h-9 w-12 cursor-pointer rounded border border-brand-100 bg-white" />
                 <Input value={form.color || ''} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#CFE8F5" />
               </div>
+            </Field>
+
+            <Field label="Corner / Kon" hint="e.g. Agneya Kon (आग्नेय कोण / Fire Corner)">
+              <Input value={form.corner || ''} onChange={(e) => setForm({ ...form, corner: e.target.value })} />
+            </Field>
+
+            <div className="rounded-lg bg-brand-50/50 p-3">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">7D Master Code</div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {[['lord', 'Lord'], ['planet', 'Planet'], ['metal', 'Metal'], ['shape', 'Shape'], ['day', 'Day']].map(([k, label]) => (
+                  <Field key={k} label={label}><Input value={form[k] || ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} /></Field>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-brand-50/50 p-3">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">Colour Remedies</div>
+              <div className="grid grid-cols-2 gap-3">
+                {[['self_colour', 'Self'], ['enhance_colour', 'Enhance'], ['destruct_colour', 'Destruct'], ['exhaust_colour', 'Exhaust']].map(([k, label]) => (
+                  <Field key={k} label={label}><Input value={form[k] || ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} /></Field>
+                ))}
+              </div>
+              <div className="mt-2"><Field label="Acceptable"><Input value={form.acceptable_colour || ''} onChange={(e) => setForm({ ...form, acceptable_colour: e.target.value })} /></Field></div>
+            </div>
+
+            <Field label="Relationship" hint="Optional detail (e.g. Sex-Partner, Extra Marital Affair)">
+              <Input value={form.relationship || ''} onChange={(e) => setForm({ ...form, relationship: e.target.value })} />
             </Field>
             <Field label="Description"><Textarea rows={3} value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
             <label className="flex items-center gap-2 text-sm font-medium text-ink/80">
