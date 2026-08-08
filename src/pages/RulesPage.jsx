@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pencil, CheckCircle2, Circle } from 'lucide-react';
+import { Pencil, CheckCircle2, Circle, Trash2 } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { Button, Card, Field, Input, Select, Spinner, Textarea, VerdictBadge } from '../components/ui';
 import Modal from '../components/Modal';
@@ -18,6 +18,7 @@ export default function RulesPage() {
   const [editing, setEditing] = useState(null); // { pada, rule }
   const [form, setForm] = useState(blankRule);
   const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Bootstrap categories + padas once.
   useEffect(() => {
@@ -43,6 +44,19 @@ export default function RulesPage() {
     const rule = rulesByPada[pada.code];
     setForm(rule ? { ...blankRule, ...rule } : { ...blankRule });
     setEditing({ pada, rule });
+  };
+
+  const removeRule = async () => {
+    setDeleting(true);
+    try {
+      await adminApi.deleteRule(editing.rule.id);
+      setEditing(null);
+      loadRules(category);
+    } catch (err) {
+      alert(err?.response?.data?.detail || 'Delete failed');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const save = async () => {
@@ -124,10 +138,22 @@ export default function RulesPage() {
         onClose={() => setEditing(null)}
         maxWidth="max-w-2xl"
         title={editing ? `${categories.find((c) => c.slug === category)?.name} · ${editing.pada.code} (${editing.pada.direction16})` : ''}
-        footer={<>
-          <Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
-          <Button onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save rule'}</Button>
-        </>}
+        footer={
+          <div className="flex w-full justify-between items-center">
+            <div>
+              {editing?.rule?.id && (
+                <Button variant="danger" onClick={removeRule} disabled={deleting || busy}>
+                  <Trash2 size={16} className="inline mr-1.5 -mt-0.5" />
+                  {deleting ? 'Resetting…' : 'Reset to default'}
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+              <Button onClick={save} disabled={busy || deleting}>{busy ? 'Saving…' : 'Save rule'}</Button>
+            </div>
+          </div>
+        }
       >
         {editing && (
           <div className="space-y-5">

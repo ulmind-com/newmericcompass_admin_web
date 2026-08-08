@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { Button, Card, Field, Input, Spinner, Textarea } from '../components/ui';
 import Modal from '../components/Modal';
@@ -12,12 +12,27 @@ export default function TipsPage() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const load = () => { setLoading(true); adminApi.getTips().then(setItems).finally(() => setLoading(false)); };
   useEffect(load, []);
 
   const openNew = () => { setForm({ ...empty, order: items.length }); setEditing({}); };
   const openEdit = (t) => { setForm({ ...empty, ...t }); setEditing(t); };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await adminApi.uploadImage(file, 'tips');
+      setForm({ ...form, image_url: url });
+    } catch (err) {
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const save = async () => {
     setBusy(true);
@@ -48,10 +63,13 @@ export default function TipsPage() {
         {items.map((t) => (
           <Card key={t.id} className="group p-5">
             <div className="flex items-start justify-between gap-3">
-              <div>
+              <div className="flex-1">
                 <h3 className="font-bold text-ink">{t.title}</h3>
                 <p className="mt-1 text-sm text-ink/60 line-clamp-3">{t.body}</p>
               </div>
+              {t.image_url && (
+                <img src={t.image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover bg-gray-100" />
+              )}
               <div className="flex shrink-0 gap-1 opacity-0 transition group-hover:opacity-100">
                 <button onClick={() => openEdit(t)} className="rounded-lg p-1.5 text-brand-600 hover:bg-brand-50"><Pencil size={16} /></button>
                 <button onClick={() => remove(t)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50"><Trash2 size={16} /></button>
@@ -72,12 +90,26 @@ export default function TipsPage() {
         title={editing?.id ? 'Edit Tip' : 'New Tip'}
         footer={<>
           <Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
-          <Button onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save'}</Button>
+          <Button onClick={save} disabled={busy || uploading}>{busy ? 'Saving…' : 'Save'}</Button>
         </>}
       >
         <div className="space-y-4">
           <Field label="Title"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
           <Field label="Body"><Textarea rows={4} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></Field>
+          
+          <Field label="Image (optional)">
+            <div className="flex items-center gap-4">
+              {form.image_url && (
+                <img src={form.image_url} alt="Preview" className="h-16 w-16 shrink-0 rounded-lg object-cover bg-gray-100" />
+              )}
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-ink/20 px-4 py-2 text-sm font-medium hover:bg-ink/5">
+                <Upload size={16} />
+                {uploading ? 'Uploading…' : 'Choose Image'}
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+              </label>
+            </div>
+          </Field>
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="Category slug (optional)"><Input value={form.category_slug || ''} onChange={(e) => setForm({ ...form, category_slug: e.target.value })} placeholder="kitchen" /></Field>
             <Field label="Order"><Input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: e.target.value })} /></Field>
