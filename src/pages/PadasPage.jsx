@@ -22,7 +22,7 @@ export default function PadasPage() {
   const save = async () => {
     setBusy(true);
     try {
-      const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color',
+      const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color', 'corner',
         'lord', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
         'enhance_colour', 'exhaust_colour', 'acceptable_colour', 'relationship',
         'default_verdict', 'description', 'is_active'];
@@ -111,6 +111,10 @@ export default function PadasPage() {
                   className="h-9 w-12 cursor-pointer rounded border border-brand-100 bg-white" />
                 <Input value={form.color || ''} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#CFE8F5" />
               </div>
+            </Field>
+
+            <Field label="Corner / Kon" hint="e.g. Agneya Kon (आग्नेय कोण / Fire Corner)">
+              <Input value={form.corner || ''} onChange={(e) => setForm({ ...form, corner: e.target.value })} />
             </Field>
 
             <div className="rounded-lg bg-brand-50/50 p-3">
