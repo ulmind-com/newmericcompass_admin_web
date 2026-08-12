@@ -13,6 +13,7 @@ import SubmissionsPage from './pages/SubmissionsPage';
 import PlansPage from './pages/PlansPage';
 import RevenuePage from './pages/RevenuePage';
 import AccessPage from './pages/AccessPage';
+import AppContentPage from './pages/AppContentPage';
 import TipsPage from './pages/TipsPage';
 import UsersList from './pages/UsersList';
 
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="plans" element={<PlansPage />} />
             <Route path="revenue" element={<RevenuePage />} />
             <Route path="access" element={<AccessPage />} />
+            <Route path="app-content" element={<AppContentPage />} />
             <Route path="tips" element={<TipsPage />} />
             <Route path="users" element={<UsersList />} />
           </Route>

@@ -55,6 +55,14 @@ export const adminApi = {
   updateTip: async (id, payload) => (await client.put(`/admin/tips/${id}`, payload)).data,
   deleteTip: async (id) => (await client.delete(`/admin/tips/${id}`)).data,
 
+  // ---- App content: side-menu links + share/review settings ----
+  listAppLinks: async () => (await client.get('/admin/app/links')).data,
+  createAppLink: async (payload) => (await client.post('/admin/app/links', payload)).data,
+  updateAppLink: async (id, payload) => (await client.put(`/admin/app/links/${id}`, payload)).data,
+  deleteAppLink: async (id) => (await client.delete(`/admin/app/links/${id}`)).data,
+  getShareSettings: async () => (await client.get('/admin/app/share')).data,
+  updateShareSettings: async (payload) => (await client.put('/admin/app/share', payload)).data,
+
   // ---- Billing: plans, entitlements, money ----
   listPlans: async () => (await client.get('/admin/billing/plans')).data,
   createPlan: async (payload) => (await client.post('/admin/billing/plans', payload)).data,
