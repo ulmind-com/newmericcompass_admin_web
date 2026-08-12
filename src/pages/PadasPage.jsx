@@ -36,7 +36,7 @@ export default function PadasPage() {
         'entrance_challenge', 'entrance_rating', 'entrance_rating_label', 'entrance_rating_category', 'entrance_rating_color',
         'life_color', 'dir_color', 'dir_text_color', 'pada_color', 'devata_color',
         'nakshatra_color', 'brahma_name', 'brahma_color', 'corner',
-        'lord', 'deity_english', 'vastu_association', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
+        'lord', 'deity_english', 'vastu_association', 'primary_element', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
         'enhance_colour', 'exhaust_colour', 'acceptable_colour', 'relationship',
         'default_verdict', 'description', 'is_active'];
       const payload = Object.fromEntries(keys.map((k) => [k, form[k]]));
@@ -224,12 +224,17 @@ export default function PadasPage() {
 
             <div className="rounded-lg bg-brand-50/50 p-3">
               <div className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">Colour Remedies</div>
+              <div className="mb-3">
+                <Field label="Primary element" hint="e.g. Wood / Solar, Fire, Earth, Metal, Water">
+                  <Input value={form.primary_element || ''} onChange={(e) => setForm({ ...form, primary_element: e.target.value })} />
+                </Field>
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                {[['self_colour', 'Self'], ['enhance_colour', 'Enhance'], ['destruct_colour', 'Destruct'], ['exhaust_colour', 'Exhaust']].map(([k, label]) => (
+                {[['self_colour', 'Self — Most favourable'], ['enhance_colour', 'Enhance — Powerful support'], ['destruct_colour', 'Avoid — Destruct'], ['exhaust_colour', 'Avoid — Exhaust']].map(([k, label]) => (
                   <Field key={k} label={label}><Input value={form[k] || ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} /></Field>
                 ))}
               </div>
-              <div className="mt-2"><Field label="Acceptable"><Input value={form.acceptable_colour || ''} onChange={(e) => setForm({ ...form, acceptable_colour: e.target.value })} /></Field></div>
+              <div className="mt-2"><Field label="Acceptable — Balanced"><Input value={form.acceptable_colour || ''} onChange={(e) => setForm({ ...form, acceptable_colour: e.target.value })} /></Field></div>
             </div>
 
             <Field label="Relationship" hint="Optional detail (e.g. Sex-Partner, Extra Marital Affair)">
