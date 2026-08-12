@@ -10,6 +10,9 @@ import CategoriesPage from './pages/CategoriesPage';
 import PadasPage from './pages/PadasPage';
 import RulesPage from './pages/RulesPage';
 import SubmissionsPage from './pages/SubmissionsPage';
+import PlansPage from './pages/PlansPage';
+import RevenuePage from './pages/RevenuePage';
+import AccessPage from './pages/AccessPage';
 import TipsPage from './pages/TipsPage';
 import UsersList from './pages/UsersList';
 
@@ -31,6 +34,9 @@ export default function App() {
             <Route path="padas" element={<PadasPage />} />
             <Route path="rules" element={<RulesPage />} />
             <Route path="submissions" element={<SubmissionsPage />} />
+            <Route path="plans" element={<PlansPage />} />
+            <Route path="revenue" element={<RevenuePage />} />
+            <Route path="access" element={<AccessPage />} />
             <Route path="tips" element={<TipsPage />} />
             <Route path="users" element={<UsersList />} />
           </Route>
