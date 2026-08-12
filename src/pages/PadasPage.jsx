@@ -5,6 +5,16 @@ import { Button, Card, Field, Input, Select, Spinner, Textarea } from '../compon
 import Modal from '../components/Modal';
 
 const VERDICTS = ['excellent', 'good', 'average', 'bad'];
+
+// The owner's five practical entrance levels. Picking one sets the label,
+// category, colour and default verdict together so they can never disagree.
+const ENTRANCE_RATINGS = {
+  excellent:   { label: 'Excellent',   category: 'Strongly favourable',       color: '#1B7F4B', verdict: 'excellent' },
+  good:        { label: 'Good',        category: 'Generally supportive',      color: '#4CAF50', verdict: 'good' },
+  conditional: { label: 'Conditional', category: 'Depends strongly on use',   color: '#E7B416', verdict: 'average' },
+  challenging: { label: 'Challenging', category: 'Needs careful application', color: '#F2711C', verdict: 'bad' },
+  avoid:       { label: 'Generally Avoid for Main Entrance', category: 'Traditionally difficult', color: '#D5432E', verdict: 'bad' },
+};
 const QUAD_COLOR = { N: 'text-sky-600', E: 'text-emerald-600', S: 'text-rose-600', W: 'text-amber-600' };
 
 export default function PadasPage() {
@@ -23,6 +33,7 @@ export default function PadasPage() {
     setBusy(true);
     try {
       const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color',
+        'entrance_challenge', 'entrance_rating', 'entrance_rating_label', 'entrance_rating_category', 'entrance_rating_color',
         'life_color', 'dir_color', 'dir_text_color', 'pada_color', 'devata_color',
         'nakshatra_color', 'brahma_name', 'brahma_color', 'corner',
         'lord', 'deity_english', 'vastu_association', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
@@ -49,7 +60,7 @@ export default function PadasPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-brand-50/60 text-left text-xs uppercase tracking-wide text-ink/50">
               <tr>
-                {['Pada', 'Range', '16-Dir', 'Element', 'Dosha', 'Organ', 'Life Aspect', 'Default', ''].map((h) => (
+                {['Pada', 'Deity', 'Range', '16-Dir', 'Element', 'Organ', 'Life Aspect', 'Entrance', ''].map((h) => (
                   <th key={h} className="px-4 py-3 font-semibold">{h}</th>
                 ))}
               </tr>
@@ -63,13 +74,21 @@ export default function PadasPage() {
                       <span className={QUAD_COLOR[p.quadrant]}>{p.code}</span>
                     </span>
                   </td>
+                  <td className="px-4 py-2.5 font-medium text-ink/80">{p.name || '—'}</td>
                   <td className="px-4 py-2.5 tabular-nums text-ink/60">{p.start_deg}°–{p.end_deg}°</td>
                   <td className="px-4 py-2.5 font-medium">{p.direction16}</td>
                   <td className="px-4 py-2.5 text-ink/70">{p.element || '—'}</td>
-                  <td className="px-4 py-2.5 text-ink/70">{p.dosha || '—'}</td>
                   <td className="px-4 py-2.5 text-ink/70">{p.organ || '—'}</td>
                   <td className="px-4 py-2.5 text-ink/70">{p.life_aspect || '—'}</td>
-                  <td className="px-4 py-2.5 capitalize text-ink/70">{p.default_verdict}</td>
+                  <td className="px-4 py-2.5">
+                    {p.entrance_rating_label ? (
+                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold"
+                        style={{ color: p.entrance_rating_color }}>
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.entrance_rating_color }} />
+                        {p.entrance_rating_label}
+                      </span>
+                    ) : <span className="text-ink/40">—</span>}
+                  </td>
                   <td className="px-4 py-2.5 text-right">
                     <button onClick={() => openEdit(p)} className="rounded-lg p-1.5 text-brand-600 hover:bg-brand-100"><Pencil size={16} /></button>
                   </td>
@@ -95,7 +114,6 @@ export default function PadasPage() {
               {editing.direction16_full} · {editing.center_deg}° center · quadrant {editing.quadrant}
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Name"><Input value={form.name || ''} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
               <Field label="Nakshatra"><Input value={form.nakshatra || ''} onChange={(e) => setForm({ ...form, nakshatra: e.target.value })} /></Field>
               <Field label="Element"><Input value={form.element || ''} onChange={(e) => setForm({ ...form, element: e.target.value })} /></Field>
               <Field label="Dosha"><Input value={form.dosha || ''} onChange={(e) => setForm({ ...form, dosha: e.target.value })} /></Field>
@@ -145,6 +163,37 @@ export default function PadasPage() {
             <Field label="Corner / Kon" hint="e.g. Agneya Kon (आग्नेय कोण / Fire Corner)">
               <Input value={form.corner || ''} onChange={(e) => setForm({ ...form, corner: e.target.value })} />
             </Field>
+
+            {/* The entrance pada: presiding deity, its ranking and its challenges. */}
+            <div className="rounded-lg bg-brand-50/50 p-3">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">Entrance Pada</div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Presiding deity" hint="Shown on the compass devata ring and the Nexus card">
+                  <Input value={form.name || ''} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                </Field>
+                <Field label="Entrance ranking">
+                  <Select value={form.entrance_rating || 'conditional'}
+                    onChange={(e) => {
+                      const r = ENTRANCE_RATINGS[e.target.value];
+                      setForm({
+                        ...form, entrance_rating: e.target.value,
+                        entrance_rating_label: r.label, entrance_rating_category: r.category,
+                        entrance_rating_color: r.color, default_verdict: r.verdict,
+                      });
+                    }}>
+                    {Object.entries(ENTRANCE_RATINGS).map(([k, r]) => (
+                      <option key={k} value={k}>{r.label} — {r.category}</option>
+                    ))}
+                  </Select>
+                </Field>
+              </div>
+              <div className="mt-2">
+                <Field label="Major entrance challenges">
+                  <Textarea rows={2} value={form.entrance_challenge || ''}
+                    onChange={(e) => setForm({ ...form, entrance_challenge: e.target.value })} />
+                </Field>
+              </div>
+            </div>
 
             {/* The 8 Asta Dikpala table, shown right after Corner / Kon in the app. */}
             <div className="rounded-lg bg-brand-50/50 p-3">
