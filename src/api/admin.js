@@ -55,6 +55,20 @@ export const adminApi = {
   updateTip: async (id, payload) => (await client.put(`/admin/tips/${id}`, payload)).data,
   deleteTip: async (id) => (await client.delete(`/admin/tips/${id}`)).data,
 
+  // ---- Billing: plans, entitlements, money ----
+  listPlans: async () => (await client.get('/admin/billing/plans')).data,
+  createPlan: async (payload) => (await client.post('/admin/billing/plans', payload)).data,
+  updatePlan: async (id, payload) => (await client.put(`/admin/billing/plans/${id}`, payload)).data,
+  deletePlan: async (id) => (await client.delete(`/admin/billing/plans/${id}`)).data,
+
+  listEntitlements: async (params = {}) => (await client.get('/admin/billing/entitlements', { params })).data,
+  grantAccess: async (payload) => (await client.post('/admin/billing/grant', payload)).data,
+  revokeAccess: async (id) => (await client.delete(`/admin/billing/entitlements/${id}`)).data,
+  resetQuota: async (id) => (await client.post(`/admin/billing/entitlements/${id}/reset-quota`)).data,
+
+  listPayments: async (params = {}) => (await client.get('/admin/billing/payments', { params })).data,
+  revenue: async () => (await client.get('/admin/billing/revenue')).data,
+
   // ---- Uploads ----
   uploadImage: async (file, folder = 'newmericcompass') => {
     const form = new FormData();
