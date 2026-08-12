@@ -55,6 +55,10 @@ export const adminApi = {
   updateTip: async (id, payload) => (await client.put(`/admin/tips/${id}`, payload)).data,
   deleteTip: async (id) => (await client.delete(`/admin/tips/${id}`)).data,
 
+  // ---- Day-wise remedial protocol ----
+  listDayProtocols: async () => (await client.get('/admin/days')).data,
+  updateDayProtocol: async (id, payload) => (await client.put(`/admin/days/${id}`, payload)).data,
+
   // ---- App content: side-menu links + share/review settings ----
   listAppLinks: async () => (await client.get('/admin/app/links')).data,
   createAppLink: async (payload) => (await client.post('/admin/app/links', payload)).data,

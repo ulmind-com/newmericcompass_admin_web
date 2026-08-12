@@ -14,6 +14,7 @@ import PlansPage from './pages/PlansPage';
 import RevenuePage from './pages/RevenuePage';
 import AccessPage from './pages/AccessPage';
 import AppContentPage from './pages/AppContentPage';
+import DayProtocolPage from './pages/DayProtocolPage';
 import TipsPage from './pages/TipsPage';
 import UsersList from './pages/UsersList';
 
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="revenue" element={<RevenuePage />} />
             <Route path="access" element={<AccessPage />} />
             <Route path="app-content" element={<AppContentPage />} />
+            <Route path="days" element={<DayProtocolPage />} />
             <Route path="tips" element={<TipsPage />} />
             <Route path="users" element={<UsersList />} />
           </Route>
