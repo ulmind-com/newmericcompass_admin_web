@@ -100,6 +100,14 @@ export default function SubmissionsPage() {
                       {it.direction16} · {it.degree?.toFixed(1)}° {it.verdict && <VerdictBadge verdict={it.verdict} />}
                     </div>
                   </div>
+                  {it.latitude != null && it.longitude != null ? (
+                    <a className="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline"
+                      href={`https://www.google.com/maps?q=${it.latitude},${it.longitude}`}
+                      target="_blank" rel="noreferrer">
+                      📍 {it.latitude.toFixed(5)}, {it.longitude.toFixed(5)}
+                      {it.accuracy ? ` (±${Math.round(it.accuracy)}m)` : ''}
+                    </a>
+                  ) : null}
                   {it.images?.length ? (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {it.images.map((url, k) => (
