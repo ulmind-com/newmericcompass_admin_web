@@ -25,7 +25,7 @@ export default function PadasPage() {
       const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color',
         'life_color', 'dir_color', 'dir_text_color', 'pada_color', 'devata_color',
         'nakshatra_color', 'brahma_name', 'brahma_color', 'corner',
-        'lord', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
+        'lord', 'deity_english', 'vastu_association', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
         'enhance_colour', 'exhaust_colour', 'acceptable_colour', 'relationship',
         'default_verdict', 'description', 'is_active'];
       const payload = Object.fromEntries(keys.map((k) => [k, form[k]]));
@@ -146,10 +146,28 @@ export default function PadasPage() {
               <Input value={form.corner || ''} onChange={(e) => setForm({ ...form, corner: e.target.value })} />
             </Field>
 
+            {/* The 8 Asta Dikpala table, shown right after Corner / Kon in the app. */}
+            <div className="rounded-lg bg-brand-50/50 p-3">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">8 Asta Dikpala · Guardian Deity</div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Sanskrit / Traditional deity" hint="e.g. Varuna">
+                  <Input value={form.lord || ''} onChange={(e) => setForm({ ...form, lord: e.target.value })} />
+                </Field>
+                <Field label="English identification" hint="e.g. Lord of Cosmic Waters">
+                  <Input value={form.deity_english || ''} onChange={(e) => setForm({ ...form, deity_english: e.target.value })} />
+                </Field>
+              </div>
+              <div className="mt-2">
+                <Field label="Main Vastu association" hint="e.g. Water, depth, law, flow">
+                  <Input value={form.vastu_association || ''} onChange={(e) => setForm({ ...form, vastu_association: e.target.value })} />
+                </Field>
+              </div>
+            </div>
+
             <div className="rounded-lg bg-brand-50/50 p-3">
               <div className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-700">7D Master Code</div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {[['lord', 'Lord'], ['planet', 'Planet'], ['metal', 'Metal'], ['shape', 'Shape'], ['day', 'Day']].map(([k, label]) => (
+                {[['planet', 'Planet'], ['metal', 'Metal'], ['shape', 'Shape'], ['day', 'Day']].map(([k, label]) => (
                   <Field key={k} label={label}><Input value={form[k] || ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} /></Field>
                 ))}
               </div>
