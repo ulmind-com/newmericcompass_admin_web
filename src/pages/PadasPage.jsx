@@ -22,7 +22,9 @@ export default function PadasPage() {
   const save = async () => {
     setBusy(true);
     try {
-      const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color', 'corner',
+      const keys = ['name', 'element', 'dosha', 'organ', 'life_aspect', 'nakshatra', 'color',
+        'life_color', 'dir_color', 'dir_text_color', 'pada_color', 'devata_color',
+        'nakshatra_color', 'brahma_name', 'brahma_color', 'corner',
         'lord', 'planet', 'metal', 'shape', 'day', 'self_colour', 'destruct_colour',
         'enhance_colour', 'exhaust_colour', 'acceptable_colour', 'relationship',
         'default_verdict', 'description', 'is_active'];
@@ -112,6 +114,33 @@ export default function PadasPage() {
                 <Input value={form.color || ''} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#CFE8F5" />
               </div>
             </Field>
+
+            {/* Colour of each ring of the printed compass chart. */}
+            <div className="mt-4 rounded-lg border border-brand-100 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-700">Compass chart rings</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  ['life_color', 'Life-aspect band', '#CDE9EF'],
+                  ['dir_color', 'Direction band', '#2D6FB8'],
+                  ['dir_text_color', 'Direction text', '#FFFFFF'],
+                  ['pada_color', 'Pada-code band', '#E7F4F8'],
+                  ['devata_color', 'Devata band', '#FBFAF5'],
+                  ['nakshatra_color', 'Nakshatra band', '#DCEAF2'],
+                  ['brahma_color', 'Brahmasthan quadrant', '#CDE9EF'],
+                ].map(([k, label, fallback]) => (
+                  <Field key={k} label={label}>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={form[k] || fallback} onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+                        className="h-9 w-12 cursor-pointer rounded border border-brand-100 bg-white" />
+                      <Input value={form[k] || ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} placeholder={fallback} />
+                    </div>
+                  </Field>
+                ))}
+                <Field label="Brahmasthan quadrant name" hint="BHUDHAR / ARYAAMA / NYASVAN / MITRA">
+                  <Input value={form.brahma_name || ''} onChange={(e) => setForm({ ...form, brahma_name: e.target.value })} />
+                </Field>
+              </div>
+            </div>
 
             <Field label="Corner / Kon" hint="e.g. Agneya Kon (आग्नेय कोण / Fire Corner)">
               <Input value={form.corner || ''} onChange={(e) => setForm({ ...form, corner: e.target.value })} />
