@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload, Bell } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { Button, Card, Field, Input, Spinner, Textarea } from '../components/ui';
 import Modal from '../components/Modal';
 
-const empty = { title: '', body: '', category_slug: '', image_url: '', order: 0, is_active: true };
+const empty = { title: '', body: '', category_slug: '', image_url: '', order: 0, is_active: true, notify: true };
 
 export default function TipsPage() {
   const [items, setItems] = useState([]);
@@ -38,14 +38,28 @@ export default function TipsPage() {
     setBusy(true);
     try {
       const payload = { ...form, order: Number(form.order) || 0, category_slug: form.category_slug || null };
-      if (editing.id) await adminApi.updateTip(editing.id, payload);
-      else await adminApi.createTip(payload);
+      if (editing.id) {
+        // Only a new tip announces itself; an edit is a correction, not news.
+        const { notify, ...rest } = payload;
+        await adminApi.updateTip(editing.id, rest);
+      } else {
+        await adminApi.createTip(payload);
+      }
       setEditing(null); load();
     } catch (err) { alert(err?.response?.data?.detail || 'Save failed'); }
     finally { setBusy(false); }
   };
 
   const remove = async (t) => { if (confirm(`Delete tip "${t.title}"?`)) { await adminApi.deleteTip(t.id); load(); } };
+
+  const notify = async (t) => {
+    if (!confirm(`Send "${t.title}" as a push notification to every installed device?`)) return;
+    try {
+      const stats = await adminApi.notifyTip(t.id);
+      alert(`Sent to ${stats.sent} of ${stats.devices} device(s).${stats.failed ? ` ${stats.failed} failed.` : ''}`);
+      load();
+    } catch (err) { alert(err?.response?.data?.detail || 'Could not send'); }
+  };
 
   if (loading) return <Spinner label="Loading tips…" />;
 
@@ -71,6 +85,7 @@ export default function TipsPage() {
                 <img src={t.image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover bg-gray-100" />
               )}
               <div className="flex shrink-0 gap-1 opacity-0 transition group-hover:opacity-100">
+                <button onClick={() => notify(t)} title="Send as a notification" className="rounded-lg p-1.5 text-brand-600 hover:bg-brand-50"><Bell size={16} /></button>
                 <button onClick={() => openEdit(t)} className="rounded-lg p-1.5 text-brand-600 hover:bg-brand-50"><Pencil size={16} /></button>
                 <button onClick={() => remove(t)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50"><Trash2 size={16} /></button>
               </div>
@@ -78,6 +93,11 @@ export default function TipsPage() {
             <div className="mt-3 flex gap-2 text-xs">
               {t.category_slug && <span className="rounded-full bg-brand-50 px-2 py-0.5 text-brand-600">{t.category_slug}</span>}
               <span className={`rounded-full px-2 py-0.5 ${t.is_active ? 'bg-hgreen/10 text-hgreen' : 'bg-gray-100 text-gray-500'}`}>{t.is_active ? 'Active' : 'Hidden'}</span>
+              {t.notified_at && (
+                <span className="rounded-full bg-brand-50 px-2 py-0.5 text-brand-600">
+                  Notified {t.notified_count ?? 0} · {new Date(t.notified_at).toLocaleDateString()}
+                </span>
+              )}
             </div>
           </Card>
         ))}
@@ -118,6 +138,17 @@ export default function TipsPage() {
             <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 accent-brand-500" />
             Active
           </label>
+          {!editing?.id && (
+            <label className="flex items-start gap-2 rounded-lg border border-brand-100 bg-brand-50/50 p-3 text-sm font-medium text-ink/80">
+              <input type="checkbox" checked={form.notify} onChange={(e) => setForm({ ...form, notify: e.target.checked })} className="mt-0.5 h-4 w-4 accent-brand-500" />
+              <span>
+                Notify every installed device
+                <span className="block text-xs font-normal text-ink/50">
+                  Sends the title and body as a push notification the moment this tip is saved.
+                </span>
+              </span>
+            </label>
+          )}
         </div>
       </Modal>
     </div>

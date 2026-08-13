@@ -8,7 +8,7 @@ import { rupees } from './PlansPage';
 
 const FEATURE_LABEL = {
   submissions: 'Submissions',
-  analysis: 'Analysis',
+  analysis: '16 Zone Analysis',
   nexus: '7D Nexus',
 };
 

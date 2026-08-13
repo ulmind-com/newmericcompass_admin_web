@@ -53,6 +53,7 @@ export const adminApi = {
   getTips: async () => (await client.get('/admin/tips/')).data,
   createTip: async (payload) => (await client.post('/admin/tips/', payload)).data,
   updateTip: async (id, payload) => (await client.put(`/admin/tips/${id}`, payload)).data,
+  notifyTip: async (id) => (await client.post(`/admin/tips/${id}/notify`)).data,
   deleteTip: async (id) => (await client.delete(`/admin/tips/${id}`)).data,
 
   // ---- Day-wise remedial protocol ----
