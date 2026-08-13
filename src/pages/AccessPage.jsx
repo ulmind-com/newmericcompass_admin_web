@@ -7,7 +7,7 @@ import { Button, Card, Field, Input, Select, Spinner } from '../components/ui';
 
 const FEATURES = [
   { value: 'submissions', label: 'Submissions' },
-  { value: 'analysis', label: 'Analysis screen' },
+  { value: 'analysis', label: '16 Zone Analysis' },
   { value: 'nexus', label: '7D Nexus screen' },
 ];
 const LABEL = Object.fromEntries(FEATURES.map((f) => [f.value, f.label]));

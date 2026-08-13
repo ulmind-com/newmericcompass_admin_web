@@ -7,7 +7,7 @@ import { Button, Card, Field, Input, Select, Spinner, Textarea } from '../compon
 
 const FEATURES = [
   { value: 'submissions', label: 'Submissions (subscription)' },
-  { value: 'analysis', label: 'Analysis screen (one-time)' },
+  { value: 'analysis', label: '16 Zone Analysis (one-time)' },
   { value: 'nexus', label: '7D Nexus screen (one-time)' },
 ];
 
