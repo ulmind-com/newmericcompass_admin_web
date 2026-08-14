@@ -56,6 +56,12 @@ export const adminApi = {
   notifyTip: async (id) => (await client.post(`/admin/tips/${id}/notify`)).data,
   deleteTip: async (id) => (await client.delete(`/admin/tips/${id}`)).data,
 
+  // ---- Seasonal themes ----
+  listFestivals: async () => (await client.get('/admin/festivals')).data,
+  createFestival: async (payload) => (await client.post('/admin/festivals', payload)).data,
+  updateFestival: async (id, payload) => (await client.put(`/admin/festivals/${id}`, payload)).data,
+  deleteFestival: async (id) => (await client.delete(`/admin/festivals/${id}`)).data,
+
   // ---- Day-wise remedial protocol ----
   listDayProtocols: async () => (await client.get('/admin/days')).data,
   updateDayProtocol: async (id, payload) => (await client.put(`/admin/days/${id}`, payload)).data,
