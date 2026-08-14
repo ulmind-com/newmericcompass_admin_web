@@ -15,6 +15,7 @@ import RevenuePage from './pages/RevenuePage';
 import AccessPage from './pages/AccessPage';
 import AppContentPage from './pages/AppContentPage';
 import DayProtocolPage from './pages/DayProtocolPage';
+import FestivalsPage from './pages/FestivalsPage';
 import TipsPage from './pages/TipsPage';
 import UsersList from './pages/UsersList';
 
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="access" element={<AccessPage />} />
             <Route path="app-content" element={<AppContentPage />} />
             <Route path="days" element={<DayProtocolPage />} />
+            <Route path="festivals" element={<FestivalsPage />} />
             <Route path="tips" element={<TipsPage />} />
             <Route path="users" element={<UsersList />} />
           </Route>
