@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Facebook, Instagram, Youtube, MessageCircle, Globe, Plus, Pencil, Trash2, Sparkles, Loader2, Play } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Facebook, Instagram, Youtube, MessageCircle, Globe, Plus, Pencil, Trash2, Sparkles, Loader2, Play, Upload } from 'lucide-react';
 
 import { adminApi } from '../api/admin';
 import Modal from '../components/Modal';
@@ -38,6 +38,26 @@ export default function AppContentPage() {
   const [savedShare, setSavedShare] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [previewNote, setPreviewNote] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
+
+  // When a link's preview can't be fetched (a walled Facebook reel, say), the
+  // admin can upload a thumbnail straight from their device instead.
+  const onUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setPreviewNote('');
+    try {
+      const url = await adminApi.uploadImage(file, 'essentials');
+      setForm((f) => ({ ...f, thumbnail_url: url }));
+    } catch (err) {
+      setPreviewNote(err?.response?.data?.detail || 'Image upload failed.');
+    } finally {
+      setUploading(false);
+      e.target.value = ''; // let the same file be re-picked
+    }
+  };
 
   // Paste a link → scrape its title + feature image so the app card looks like
   // a social preview, no manual copying of thumbnail URLs.
@@ -269,8 +289,17 @@ export default function AppContentPage() {
           )}
 
           <div className="sm:col-span-2">
-            <Field label="Thumbnail URL" hint="Auto-filled by Fetch preview; edit or paste your own to override">
-              <Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} />
+            <Field label="Thumbnail" hint="Auto-filled by Fetch preview — or upload / paste your own image">
+              <div className="flex gap-2">
+                <Input className="flex-1" value={form.thumbnail_url}
+                  onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })}
+                  placeholder="https://… image URL" />
+                <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                  {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
+                  {uploading ? 'Uploading…' : 'Upload image'}
+                </Button>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onUpload} />
+              </div>
             </Field>
           </div>
           <Field label="Order"><Input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: e.target.value })} /></Field>
