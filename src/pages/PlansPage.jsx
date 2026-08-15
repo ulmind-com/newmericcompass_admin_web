@@ -158,11 +158,27 @@ export default function PlansPage() {
             <Input type="number" min="0" step="1" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
           </Field>
           <Field label="Currency"><Input value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} /></Field>
-          <Field label="Duration (days)" hint="Leave blank for lifetime">
-            <Input type="number" min="1" value={form.duration_days} onChange={(e) => setForm({ ...form, duration_days: e.target.value })} placeholder="30" />
+          <Field label="Duration" hint={form.duration_days === '' ? 'Lifetime — access never expires' : 'How many days access lasts'}>
+            <div className="flex items-center gap-3">
+              <Input className="flex-1" type="number" min="1" disabled={form.duration_days === ''}
+                value={form.duration_days} onChange={(e) => setForm({ ...form, duration_days: e.target.value })} placeholder="30" />
+              <label className="flex select-none items-center gap-1.5 whitespace-nowrap text-sm text-ink/80">
+                <input type="checkbox" checked={form.duration_days === ''}
+                  onChange={(e) => setForm({ ...form, duration_days: e.target.checked ? '' : '30' })} />
+                ♾️ Lifetime
+              </label>
+            </div>
           </Field>
-          <Field label="Submission quota" hint="Leave blank for unlimited">
-            <Input type="number" min="1" value={form.submission_quota} onChange={(e) => setForm({ ...form, submission_quota: e.target.value })} placeholder="25" />
+          <Field label="Submission quota" hint={form.feature !== 'submissions' ? 'Only used by subscription plans' : (form.submission_quota === '' ? 'Unlimited submissions' : 'How many reports it allows')}>
+            <div className="flex items-center gap-3">
+              <Input className="flex-1" type="number" min="1" disabled={form.submission_quota === ''}
+                value={form.submission_quota} onChange={(e) => setForm({ ...form, submission_quota: e.target.value })} placeholder="25" />
+              <label className="flex select-none items-center gap-1.5 whitespace-nowrap text-sm text-ink/80">
+                <input type="checkbox" checked={form.submission_quota === ''}
+                  onChange={(e) => setForm({ ...form, submission_quota: e.target.checked ? '' : '25' })} />
+                Unlimited
+              </label>
+            </div>
           </Field>
         </div>
 
