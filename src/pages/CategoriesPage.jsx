@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 
 const slugify = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const DIRS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-const empty = { name: '', slug: '', icon_key: '', icon_url: '', order: 0, is_active: true, best_directions: [], avoid_directions: [] };
+const empty = { name: '', slug: '', icon_key: '', icon_url: '', order: 0, is_active: true, best_directions: [], avoid_directions: [], category_group: 'architecture' };
 
 function DirPicker({ value = [], onChange, tone }) {
   const active = tone === 'best' ? 'bg-hgreen text-white border-hgreen' : 'bg-red-500 text-white border-red-500';
@@ -139,6 +139,16 @@ export default function CategoriesPage() {
           </div>
           <Field label="Name">
             <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Main Entrance" />
+          </Field>
+          <Field label="Section / Group" hint="Which section this appears in the app">
+            <select
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              value={form.category_group || 'architecture'}
+              onChange={(e) => setForm({ ...form, category_group: e.target.value })}
+            >
+              <option value="architecture">Holistic Vastu Architecture</option>
+              <option value="objects">Elements & Objects</option>
+            </select>
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Slug" hint={editing?.id ? 'Immutable' : 'Auto from name if blank'}>
