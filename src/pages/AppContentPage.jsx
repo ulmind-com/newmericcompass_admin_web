@@ -55,7 +55,16 @@ export default function AppContentPage() {
         subtitle: f.subtitle.trim() || p.subtitle || '',
         thumbnail_url: p.thumbnail_url || f.thumbnail_url || '',
       }));
-      setPreviewNote(p.thumbnail_url || p.title ? '' : 'Could not read a preview — fill the fields in by hand.');
+      // Facebook occasionally answers with a login wall, so a fetch can come
+      // back partial. Tell the admin exactly what's missing — a second Fetch
+      // often gets it, and the thumbnail field is always there as a fallback.
+      if (!p.title && !p.thumbnail_url) {
+        setPreviewNote('Facebook blocked the preview this time — tap Fetch preview again, or fill the title and thumbnail in by hand.');
+      } else if (!p.thumbnail_url) {
+        setPreviewNote('Got the title but not the image — tap Fetch preview again, or paste a Thumbnail URL below.');
+      } else {
+        setPreviewNote('');
+      }
     } catch (err) {
       setPreviewNote(err?.response?.data?.detail || 'Could not fetch that link.');
     } finally {
