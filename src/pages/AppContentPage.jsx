@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Facebook, Instagram, Youtube, MessageCircle, Globe, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Facebook, Instagram, Youtube, MessageCircle, Globe, Plus, Pencil, Trash2, Sparkles, Loader2, Play } from 'lucide-react';
 
 import { adminApi } from '../api/admin';
 import Modal from '../components/Modal';
@@ -36,6 +36,32 @@ export default function AppContentPage() {
   const [form, setForm] = useState(BLANK);
   const [busy, setBusy] = useState(false);
   const [savedShare, setSavedShare] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [previewNote, setPreviewNote] = useState('');
+
+  // Paste a link → scrape its title + feature image so the app card looks like
+  // a social preview, no manual copying of thumbnail URLs.
+  const runPreview = async () => {
+    const url = form.url.trim();
+    if (!url) return;
+    setFetching(true);
+    setPreviewNote('');
+    try {
+      const p = await adminApi.fetchLinkPreview(url);
+      setForm((f) => ({
+        ...f,
+        platform: p.platform || f.platform,
+        title: f.title.trim() || p.title || '',
+        subtitle: f.subtitle.trim() || p.subtitle || '',
+        thumbnail_url: p.thumbnail_url || f.thumbnail_url || '',
+      }));
+      setPreviewNote(p.thumbnail_url || p.title ? '' : 'Could not read a preview — fill the fields in by hand.');
+    } catch (err) {
+      setPreviewNote(err?.response?.data?.detail || 'Could not fetch that link.');
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const load = async () => {
     const [l, s] = await Promise.all([adminApi.listAppLinks(), adminApi.getShareSettings()]);
@@ -44,8 +70,9 @@ export default function AppContentPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const openNew = (section) => { setForm({ ...BLANK, section }); setEditing('new'); };
+  const openNew = (section) => { setPreviewNote(''); setForm({ ...BLANK, section }); setEditing('new'); };
   const openEdit = (l) => {
+    setPreviewNote('');
     setForm({ ...BLANK, ...l, subtitle: l.subtitle ?? '', thumbnail_url: l.thumbnail_url ?? '' });
     setEditing(l);
   };
@@ -196,12 +223,44 @@ export default function AppContentPage() {
             </Field>
           </div>
           <div className="sm:col-span-2">
-            <Field label="Link" hint="The direct video or page URL">
-              <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://youtu.be/…" />
+            <Field label="Link" hint="Paste a YouTube / Facebook link, then Fetch preview to auto-fill the rest">
+              <div className="flex gap-2">
+                <Input className="flex-1" value={form.url}
+                  onChange={(e) => setForm({ ...form, url: e.target.value })}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); runPreview(); } }}
+                  placeholder="https://www.facebook.com/share/r/… or https://youtu.be/…" />
+                <Button type="button" variant="ghost" onClick={runPreview} disabled={fetching || !form.url.trim()}>
+                  {fetching ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                  {fetching ? 'Fetching…' : 'Fetch preview'}
+                </Button>
+              </div>
             </Field>
+            {previewNote && <p className="mt-1 text-xs text-amber-600">{previewNote}</p>}
           </div>
+
+          {(form.thumbnail_url || form.title) && (
+            <div className="sm:col-span-2">
+              <p className="mb-1.5 text-xs font-medium text-ink/50">How it appears in the app</p>
+              <div className="overflow-hidden rounded-xl border border-brand-100">
+                {form.thumbnail_url ? (
+                  <div className="relative aspect-video w-full bg-ink/5">
+                    <img src={form.thumbnail_url} alt="" className="h-full w-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                    <span className="absolute inset-0 m-auto flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white">
+                      <Play size={18} fill="currentColor" />
+                    </span>
+                  </div>
+                ) : null}
+                <div className="p-3">
+                  <p className="line-clamp-2 text-sm font-semibold text-ink">{form.title || 'Untitled'}</p>
+                  <p className="mt-0.5 text-xs capitalize text-brand-700">▶ Watch on {form.platform}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="sm:col-span-2">
-            <Field label="Thumbnail URL" hint="Optional; shown next to the title in the app">
+            <Field label="Thumbnail URL" hint="Auto-filled by Fetch preview; edit or paste your own to override">
               <Input value={form.thumbnail_url} onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })} />
             </Field>
           </div>

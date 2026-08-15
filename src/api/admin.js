@@ -71,6 +71,7 @@ export const adminApi = {
   createAppLink: async (payload) => (await client.post('/admin/app/links', payload)).data,
   updateAppLink: async (id, payload) => (await client.put(`/admin/app/links/${id}`, payload)).data,
   deleteAppLink: async (id) => (await client.delete(`/admin/app/links/${id}`)).data,
+  fetchLinkPreview: async (url) => (await client.post('/admin/app/link-preview', { url })).data,
   getShareSettings: async () => (await client.get('/admin/app/share')).data,
   updateShareSettings: async (payload) => (await client.put('/admin/app/share', payload)).data,
 
