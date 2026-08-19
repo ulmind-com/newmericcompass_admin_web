@@ -56,7 +56,18 @@ export default function TipsPage() {
     if (!confirm(`Send "${t.title}" as a push notification to every installed device?`)) return;
     try {
       const stats = await adminApi.notifyTip(t.id);
-      alert(`Sent to ${stats.sent} of ${stats.devices} device(s).${stats.failed ? ` ${stats.failed} failed.` : ''}`);
+      // Say why, not just how many: "10 failed" with no reason sends you
+      // looking at the app when the tokens were simply stale.
+      const why = Object.entries(stats.errors || {})
+        .map(([error, count]) => `${count} ${error}`)
+        .join(', ');
+      alert(
+        `Sent to ${stats.sent} of ${stats.devices} device(s).` +
+        (stats.failed ? ` ${stats.failed} failed${why ? ` — ${why}` : ''}.` : '') +
+        (stats.errors?.DeviceNotRegistered
+          ? '\n\nThose devices uninstalled or reinstalled the app; they have been removed.'
+          : '')
+      );
       load();
     } catch (err) { alert(err?.response?.data?.detail || 'Could not send'); }
   };
