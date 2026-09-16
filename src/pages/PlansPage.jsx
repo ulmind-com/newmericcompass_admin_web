@@ -101,7 +101,13 @@ export default function PlansPage() {
 
   if (!plans) return <Spinner />;
 
-  const grouped = FEATURES.map((f) => ({ ...f, rows: plans.filter((p) => p.feature === f.value) }));
+  // A bundle opens several screens, so it belongs under each of them: the
+  // owner looking at "7D Nexus" should see every plan that sells it, not only
+  // the ones filed under it.
+  const grouped = FEATURES.map((f) => ({
+    ...f,
+    rows: plans.filter((p) => featuresOf(p).includes(f.value)),
+  }));
 
   return (
     <div className="space-y-6">
