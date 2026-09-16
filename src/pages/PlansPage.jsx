@@ -9,10 +9,15 @@ const FEATURES = [
   { value: 'submissions', label: 'Submissions (subscription)' },
   { value: 'analysis', label: '16 Zone Analysis (one-time)' },
   { value: 'nexus', label: '7D Nexus screen (one-time)' },
+  { value: 'vastu_analysis', label: 'Integrated Vastu Space & Environment Analysis' },
 ];
 
+/** Everything a plan opens. Older plans carry only `feature`. */
+const featuresOf = (p) => (p.features?.length ? p.features : p.feature ? [p.feature] : []);
+const labelOf = (v) => FEATURES.find((f) => f.value === v)?.label ?? v;
+
 const BLANK = {
-  slug: '', feature: 'submissions', kind: 'subscription', name: '', description: '',
+  slug: '', feature: 'submissions', features: ['submissions'], kind: 'subscription', name: '', description: '',
   amount: '', currency: 'INR', duration_days: '', submission_quota: '',
   is_popular: false, is_active: true, order: 0,
 };
@@ -44,6 +49,8 @@ export default function PlansPage() {
   const openEdit = (p) => {
     setForm({
       ...BLANK, ...p,
+      // An older plan has no list; open it showing the one feature it grants.
+      features: featuresOf(p),
       description: p.description ?? '',
       duration_days: p.duration_days ?? '',
       submission_quota: p.submission_quota ?? '',
@@ -60,6 +67,9 @@ export default function PlansPage() {
       const payload = {
         slug: form.slug.trim(),
         feature: form.feature,
+        // What the plan opens. The primary feature is always included, so a
+        // plan can never be saved granting nothing.
+        features: Array.from(new Set([form.feature, ...(form.features || [])])),
         kind: form.kind,
         name: form.name.trim(),
         description: form.description?.trim() || null,
@@ -119,6 +129,15 @@ export default function PlansPage() {
                       {!p.is_active && <span className="rounded bg-ink/10 px-1.5 py-0.5 text-[10px] font-semibold text-ink/60">HIDDEN</span>}
                     </div>
                     <div className="text-xs text-ink/50">{p.slug}</div>
+                    {featuresOf(p).length > 1 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {featuresOf(p).map((f) => (
+                          <span key={f} className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700">
+                            {labelOf(f)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="text-sm text-ink/70">{periodOf(p)}</div>
                   <div className="text-sm text-ink/70">
@@ -143,7 +162,7 @@ export default function PlansPage() {
             <Input value={form.slug} disabled={editing !== 'new'}
               onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="submissions-monthly" />
           </Field>
-          <Field label="Feature">
+          <Field label="Feature" hint="Which list the plan is filed under">
             <Select value={form.feature} onChange={(e) => setForm({ ...form, feature: e.target.value })}>
               {FEATURES.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
             </Select>
@@ -180,6 +199,45 @@ export default function PlansPage() {
               </label>
             </div>
           </Field>
+
+          {/* What one payment opens. Tick more than one and the plan is a
+              bundle: every ticked screen is unlocked by the single purchase,
+              and unticking one later stops it being included in new sales. */}
+          <div className="sm:col-span-2">
+            <Field label="What this plan unlocks" hint="Tick every screen the purchase should open">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {FEATURES.map((f) => {
+                  const on = f.value === form.feature || (form.features || []).includes(f.value);
+                  const locked = f.value === form.feature;  // the primary is always included
+                  return (
+                    <label
+                      key={f.value}
+                      className={`flex items-start gap-2 rounded-xl border p-2.5 text-sm ${
+                        on ? 'border-brand-300 bg-brand-50' : 'border-brand-100'
+                      } ${locked ? 'opacity-70' : 'cursor-pointer'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-0.5"
+                        checked={on}
+                        disabled={locked}
+                        onChange={(e) => {
+                          const next = new Set(form.features || []);
+                          if (e.target.checked) next.add(f.value);
+                          else next.delete(f.value);
+                          setForm({ ...form, features: Array.from(next) });
+                        }}
+                      />
+                      <span className="text-ink/80">
+                        {f.label}
+                        {locked && <span className="block text-[11px] text-ink/45">Always included</span>}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </Field>
+          </div>
         </div>
 
         <div className="mt-3">
