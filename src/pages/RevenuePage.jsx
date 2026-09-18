@@ -10,6 +10,8 @@ const FEATURE_LABEL = {
   submissions: 'Submissions',
   analysis: '16 Zone Analysis',
   nexus: '7D Nexus',
+  vastu_analysis: 'Integrated Vastu Analysis',
+  ai_assistant: 'Ask Newmeric AI',
 };
 
 const when = (iso) => (iso ? new Date(iso).toLocaleString() : '—');
