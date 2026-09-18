@@ -10,6 +10,7 @@ const FEATURES = [
   { value: 'analysis', label: '16 Zone Analysis' },
   { value: 'nexus', label: '7D Nexus screen' },
   { value: 'vastu_analysis', label: 'Integrated Vastu Space & Environment Analysis' },
+  { value: 'ai_assistant', label: 'Ask Newmeric AI' },
 ];
 const LABEL = Object.fromEntries(FEATURES.map((f) => [f.value, f.label]));
 

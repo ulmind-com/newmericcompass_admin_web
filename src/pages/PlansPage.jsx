@@ -10,6 +10,7 @@ const FEATURES = [
   { value: 'analysis', label: '16 Zone Analysis (one-time)' },
   { value: 'nexus', label: '7D Nexus screen (one-time)' },
   { value: 'vastu_analysis', label: 'Integrated Vastu Space & Environment Analysis' },
+  { value: 'ai_assistant', label: 'Ask Newmeric AI' },
 ];
 
 /** Everything a plan opens. Older plans carry only `feature`. */
