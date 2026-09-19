@@ -200,8 +200,7 @@ export default function AppContentPage() {
       <Card>
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-brand-700">Share & Review</h2>
         <p className="mb-3 text-xs text-ink/55">
-          The review prompt only appears once the user has both paid and actually used the app, so it never
-          lands on someone with nothing to say.
+          What gets sent when someone shares the app, and where the review prompt sends them.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -212,19 +211,14 @@ export default function AppContentPage() {
           <Field label="Play Store URL"><Input value={share.android_url} onChange={(e) => setShare({ ...share, android_url: e.target.value })} placeholder="https://play.google.com/store/apps/details?id=…" /></Field>
           <Field label="App Store URL"><Input value={share.ios_url} onChange={(e) => setShare({ ...share, ios_url: e.target.value })} placeholder="https://apps.apple.com/app/id…" /></Field>
           <Field label="Website"><Input value={share.website_url} onChange={(e) => setShare({ ...share, website_url: e.target.value })} /></Field>
-          <div />
-          <Field label="Ask for a review after (days)">
-            <Input type="number" min="0" value={share.review_after_days} onChange={(e) => setShare({ ...share, review_after_days: e.target.value })} />
-          </Field>
-          <Field label="…and after this many app opens">
-            <Input type="number" min="0" value={share.review_after_opens} onChange={(e) => setShare({ ...share, review_after_opens: e.target.value })} />
-          </Field>
         </div>
-        <label className="mt-3 flex items-center gap-2 text-sm text-ink/80">
-          <input type="checkbox" checked={!!share.review_requires_purchase}
-            onChange={(e) => setShare({ ...share, review_requires_purchase: e.target.checked })} />
-          Only ask users who have bought something
-        </label>
+        {/* When the app asks for a review is fixed in the app now, by the
+            owner's rule, so there is nothing here to set. */}
+        <p className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm text-ink/70">
+          The app asks for a Google Play review on a user's <strong>3rd app open</strong>, and
+          again <strong>right after any payment</strong>. "Maybe later" waits a week; anyone who
+          rates is never asked again. The Play Store URL above is where "Rate" takes them.
+        </p>
         <div className="mt-4 flex items-center gap-3">
           <Button onClick={saveShare} disabled={busy}>{busy ? 'Saving…' : 'Save settings'}</Button>
           {savedShare && <span className="text-sm text-green-600">Saved</span>}
