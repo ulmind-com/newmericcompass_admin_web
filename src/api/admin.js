@@ -46,6 +46,8 @@ export const adminApi = {
   getSubmissions: async (page = 1, pageSize = 20) =>
     (await client.get(`/admin/submissions/?page=${page}&page_size=${pageSize}`)).data,
   getSubmission: async (id) => (await client.get(`/admin/submissions/${id}`)).data,
+  deleteSubmission: async (id) => (await client.delete(`/admin/submissions/${id}`)).data,
+  clearSubmissions: async () => (await client.delete('/admin/submissions/', { params: { confirm: true } })).data,
   updateSubmissionStatus: async (id, status) =>
     (await client.patch(`/admin/submissions/${id}`, { status })).data,
 
@@ -85,9 +87,13 @@ export const adminApi = {
   grantAccess: async (payload) => (await client.post('/admin/billing/grant', payload)).data,
   revokeAccess: async (id) => (await client.delete(`/admin/billing/entitlements/${id}`)).data,
   resetQuota: async (id) => (await client.post(`/admin/billing/entitlements/${id}/reset-quota`)).data,
+  // Deletes the rows rather than revoking them, so the user starts over and can buy again.
+  wipeAccess: async (email) => (await client.delete('/admin/billing/entitlements', { params: { email } })).data,
 
   listPayments: async (params = {}) => (await client.get('/admin/billing/payments', { params })).data,
   revenue: async () => (await client.get('/admin/billing/revenue')).data,
+  deletePayment: async (id) => (await client.delete(`/admin/billing/payments/${id}`)).data,
+  clearPayments: async () => (await client.delete('/admin/billing/payments', { params: { confirm: true } })).data,
 
   // ---- Uploads ----
   uploadImage: async (file, folder = 'newmericcompass') => {

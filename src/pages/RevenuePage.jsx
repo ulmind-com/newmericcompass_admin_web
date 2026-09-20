@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ExternalLink, Search } from 'lucide-react';
+import { ExternalLink, Search, Trash2 } from 'lucide-react';
 
 import { adminApi } from '../api/admin';
+import DangerConfirm from '../components/DangerConfirm';
 import Modal from '../components/Modal';
 import { Button, Card, Input, Select, Spinner } from '../components/ui';
 import { rupees } from './PlansPage';
@@ -53,6 +54,8 @@ export default function RevenuePage() {
   const [feature, setFeature] = useState('');
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(null);
+  // Either one payment record to delete, or 'all' for the books.
+  const [deleting, setDeleting] = useState(null);
 
   const load = async () => {
     const [r, p] = await Promise.all([
@@ -78,9 +81,17 @@ export default function RevenuePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-ink">Revenue</h1>
-        <p className="text-sm text-ink/60">Verified payments only — abandoned checkouts are never recorded.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Revenue</h1>
+          <p className="text-sm text-ink/60">Verified payments only — abandoned checkouts are never recorded.</p>
+        </div>
+        {payments.length > 0 && (
+          <Button variant="outline" className="!text-red-600 !border-red-200 hover:!bg-red-50"
+            onClick={() => setDeleting('all')}>
+            <Trash2 size={16} /> Clear records
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -164,8 +175,11 @@ export default function RevenuePage() {
                     </td>
                     <td className="py-2 pr-3 uppercase text-xs text-ink/60">{p.method || '—'}</td>
                     <td className="py-2 pr-3 text-right font-semibold text-brand-700">{rupees(p.amount, p.currency)}</td>
-                    <td className="py-2 text-right">
+                    <td className="py-2 text-right whitespace-nowrap">
                       <Button variant="ghost" onClick={() => setOpen(p)}>Details</Button>
+                      <button title="Delete this record"
+                        onClick={() => setDeleting(p)}
+                        className="rounded-lg p-2 align-middle text-ink/40 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
                     </td>
                   </tr>
                 ))}
@@ -174,6 +188,23 @@ export default function RevenuePage() {
           </div>
         )}
       </Card>
+
+      <DangerConfirm
+        open={!!deleting}
+        onClose={() => setDeleting(null)}
+        title={deleting === 'all' ? 'Clear the payment records?' : 'Delete this payment record?'}
+        confirmLabel={deleting === 'all' ? 'Clear records' : 'Delete'}
+        phrase={deleting === 'all' ? 'DELETE' : null}
+        body={deleting === 'all'
+          ? 'Every payment this app has recorded goes, and the totals reset to zero — for clearing test payments before going live. Razorpay keeps its own record of real payments, and nobody loses what they unlocked.'
+          : `${deleting?.user_email || 'This record'} — ${deleting ? rupees(deleting.amount, deleting.currency) : ''} — is removed from the books. What they unlocked stays unlocked.`}
+        onConfirm={async () => {
+          if (deleting === 'all') await adminApi.clearPayments();
+          else await adminApi.deletePayment(deleting.id);
+          setOpen(null);
+          load();
+        }}
+      />
 
       <Modal open={!!open} onClose={() => setOpen(null)} title="Payment details">
         {open && (

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, Phone, Mail, Image as ImageIcon, X } from 'lucide-react';
+import { MapPin, Phone, Mail, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { Button, Card, Spinner, VerdictBadge } from '../components/ui';
+import DangerConfirm from '../components/DangerConfirm';
 import Modal from '../components/Modal';
 
 const STATUS_STYLE = {
@@ -17,6 +18,8 @@ export default function SubmissionsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [open, setOpen] = useState(null);
   const [lightbox, setLightbox] = useState(null);
+  // Either one row to delete, or 'all' for the lot.
+  const [deleting, setDeleting] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -36,16 +39,24 @@ export default function SubmissionsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-black text-ink">Submissions</h1>
-        <p className="text-sm text-ink/50">Property scans sent by users — details, directions and photos.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-black text-ink">Submissions</h1>
+          <p className="text-sm text-ink/50">Property scans sent by users — details, directions and photos.</p>
+        </div>
+        {rows.length > 0 && (
+          <Button variant="outline" className="!text-red-600 !border-red-200 hover:!bg-red-50"
+            onClick={() => setDeleting('all')}>
+            <Trash2 size={16} /> Clear all
+          </Button>
+        )}
       </div>
 
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-brand-50/60 text-left text-xs uppercase tracking-wide text-ink/50">
-              <tr>{['User', 'Property', 'Placements', 'Photos', 'Status', 'Date'].map((h) => <th key={h} className="px-5 py-3 font-semibold">{h}</th>)}</tr>
+              <tr>{['User', 'Property', 'Placements', 'Photos', 'Status', 'Date'].map((h) => <th key={h} className="px-5 py-3 font-semibold">{h}</th>)}<th className="px-5 py-3" /></tr>
             </thead>
             <tbody className="divide-y divide-brand-50">
               {rows.map((s) => {
@@ -61,10 +72,15 @@ export default function SubmissionsPage() {
                     <td className="px-5 py-3 text-ink/70">{photos}</td>
                     <td className="px-5 py-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLE[s.status] || STATUS_STYLE.new}`}>{(s.status || 'new').replace('_', ' ')}</span></td>
                     <td className="px-5 py-3 text-ink/60">{new Date(s.created_at).toLocaleDateString()}</td>
+                    <td className="px-2 py-3 text-right">
+                      <button title="Delete this submission"
+                        onClick={(e) => { e.stopPropagation(); setDeleting(s); }}
+                        className="rounded-lg p-2 text-ink/40 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
+                    </td>
                   </tr>
                 );
               })}
-              {rows.length === 0 && <tr><td colSpan="6" className="px-6 py-10 text-center text-ink/40">No submissions yet.</td></tr>}
+              {rows.length === 0 && <tr><td colSpan="7" className="px-6 py-10 text-center text-ink/40">No submissions yet.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -122,6 +138,24 @@ export default function SubmissionsPage() {
           </div>
         )}
       </Modal>
+
+      <DangerConfirm
+        open={!!deleting}
+        onClose={() => setDeleting(null)}
+        title={deleting === 'all' ? 'Clear every submission?' : 'Delete this submission?'}
+        confirmLabel={deleting === 'all' ? 'Clear all' : 'Delete'}
+        phrase={deleting === 'all' ? 'DELETE' : null}
+        body={deleting === 'all'
+          ? 'Every property scan users have sent — details, directions and photo links — is removed from this list. The photos themselves stay in Cloudinary.'
+          : `${deleting?.name || 'This submission'}${deleting?.address ? ` — ${deleting.address}` : ''} is removed from the list.`}
+        onConfirm={async () => {
+          if (deleting === 'all') await adminApi.clearSubmissions();
+          else await adminApi.deleteSubmission(deleting.id);
+          setOpen(null);
+          setPage(1);
+          load();
+        }}
+      />
 
       {lightbox && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/80 p-6" onClick={() => setLightbox(null)}>

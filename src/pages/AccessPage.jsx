@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Gift, RotateCcw, Search, ShieldOff } from 'lucide-react';
+import { Gift, RotateCcw, Search, ShieldOff, Trash2 } from 'lucide-react';
 
 import { adminApi } from '../api/admin';
+import DangerConfirm from '../components/DangerConfirm';
 import Modal from '../components/Modal';
 import { Button, Card, Field, Input, Select, Spinner } from '../components/ui';
 
@@ -31,6 +32,8 @@ export default function AccessPage() {
   const [granting, setGranting] = useState(false);
   const [form, setForm] = useState(BLANK);
   const [busy, setBusy] = useState(false);
+  // The email whose unlocks are about to be erased.
+  const [wiping, setWiping] = useState(null);
 
   const load = async () => setRows(await adminApi.listEntitlements());
   useEffect(() => { load(); }, []);
@@ -69,6 +72,9 @@ export default function AccessPage() {
   if (!rows) return <Spinner />;
 
   const filtered = rows.filter((e) => !q.trim() || e.user_email.includes(q.trim().toLowerCase()));
+  // Erasing by email only makes sense when the filter has settled on one person.
+  const filteredEmails = [...new Set(filtered.map((e) => e.user_email))];
+  const oneEmail = q.trim() && filteredEmails.length === 1 ? filteredEmails[0] : null;
 
   return (
     <div className="space-y-6">
@@ -86,6 +92,12 @@ export default function AccessPage() {
             <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink/40" />
             <Input className="pl-8" placeholder="Filter by email" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
+          {oneEmail && (
+            <Button variant="outline" className="!text-red-600 !border-red-200 hover:!bg-red-50"
+              onClick={() => setWiping(oneEmail)}>
+              <Trash2 size={16} /> Erase all access for this user
+            </Button>
+          )}
         </div>
 
         {filtered.length === 0 ? (
@@ -142,6 +154,16 @@ export default function AccessPage() {
           </div>
         )}
       </Card>
+
+      <DangerConfirm
+        open={!!wiping}
+        onClose={() => setWiping(null)}
+        title="Erase every unlock for this user?"
+        confirmLabel="Erase access"
+        phrase="DELETE"
+        body={`Everything ${wiping} has unlocked — bought or given — is removed, and they go back to where a new user starts. They can buy it again. Their payment records stay in Revenue.`}
+        onConfirm={async () => { await adminApi.wipeAccess(wiping); load(); }}
+      />
 
       <Modal open={granting} onClose={() => setGranting(false)} title="Give free access">
         <p className="mb-3 text-sm text-ink/60">
