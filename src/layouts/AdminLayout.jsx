@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Grid3x3, Compass, ScrollText, Inbox, Lightbulb, Users, LogOut,
-  Tag, IndianRupee, KeyRound, Link2, CalendarDays, Sparkles,
+  Tag, IndianRupee, KeyRound, Link2, CalendarDays, Sparkles, Orbit,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 
@@ -11,6 +11,7 @@ const NAV = [
   { to: '/categories', label: 'Categories', icon: Grid3x3 },
   { to: '/padas', label: 'Padas (N5)', icon: Compass },
   { to: '/rules', label: 'Vastu Rules', icon: ScrollText },
+  { to: '/zones', label: '16 Zones', icon: Orbit },
   { to: '/submissions', label: 'Submissions', icon: Inbox },
   { to: '/plans', label: 'Plans & Pricing', icon: Tag },
   { to: '/revenue', label: 'Revenue', icon: IndianRupee },

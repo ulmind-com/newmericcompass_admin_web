@@ -67,6 +67,8 @@ export const adminApi = {
   // ---- Day-wise remedial protocol ----
   listDayProtocols: async () => (await client.get('/admin/days')).data,
   updateDayProtocol: async (id, payload) => (await client.put(`/admin/days/${id}`, payload)).data,
+  listZoneSignificance: async () => (await client.get('/admin/zone-significance')).data,
+  updateZoneSignificance: async (id, payload) => (await client.put(`/admin/zone-significance/${id}`, payload)).data,
 
   // ---- App content: side-menu links + share/review settings ----
   listAppLinks: async () => (await client.get('/admin/app/links')).data,
